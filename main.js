@@ -1,31 +1,59 @@
-function executeThisCodeAfterFileLoads2(){
-	var data = JSON.parse(this.responseText);
-	var dogArray = data.dogs
-	console.log("dogs", dogArray);
+//on page load we are sending a request to convert dogs.json
+//call helper function that sets up XHR to breeds & passes dogs (getBreedz function)
+function executeThisCodeAfterDogsLoads(){
+    var dogsData = JSON.parse(this.responseText).dogs;
+    getBreedz(dogsData);
 }
 
-function executeThisCodeAfterFileLoads3(){
-	var data = JSON.parse(this.responseText);
-	var breedsArray = data.breeds
-	console.log("breeds", breedsArray);
+function executeThisCodeIfDogsErrors(){
+    console.log("it brokenz");
 }
 
-function executeThisCodeIfFileErrors2(){
-	console.log("Shit Broke");
+function executeThisCodeIfBreedsErrors(){
+    console.log("it broken");
 }
 
-function executeThisCodeIfFileErrors3(){
-	console.log("Shit Broke");
+var myDogs = new XMLHttpRequest();
+myDogs.addEventListener("load", executeThisCodeAfterDogsLoads);
+myDogs.addEventListener("error", executeThisCodeIfDogsErrors);
+myDogs.open("GET", "dogs.json");
+myDogs.send();
+
+
+//we put dogz here as a placeholder for whatever is passed above in getBreedz. You could just use dogsData instead of dogz!
+function getBreedz(dogz){
+    var myBreeds = new XMLHttpRequest();
+    myBreeds.addEventListener("load", executeThisCodeAfterBreedsLoads);
+    myBreeds.addEventListener("error", executeThisCodeIfBreedsErrors);
+    myBreeds.open("GET", "breeds.json");
+    myBreeds.send();
+
+    function executeThisCodeAfterBreedsLoads(){
+        var breedsData = JSON.parse(this.responseText).breeds;
+        combinedArray(dogz, breedsData);
+    }
 }
 
-var myRequest2 = new XMLHttpRequest();
-myRequest2.addEventListener("load", executeThisCodeAfterFileLoads2);
-myRequest2.addEventListener("error", executeThisCodeIfFileErrors2);
-myRequest2.open("GET", "dogs.json");
-myRequest2.send();
+//loop through dogs and look at breed_id
+    //loop through breeds and find matching breed_id
+    //make final price
 
-var myRequest3 = new XMLHttpRequest();
-myRequest3.addEventListener("load", executeThisCodeAfterFileLoads3);
-myRequest3.addEventListener("error", executeThisCodeIfFileErrors3);
-myRequest3.open("GET", "breeds.json");
-myRequest3.send();
+function combinedArray(dogsArray, breedsArray){
+    console.log("dogsArray", dogsArray);
+    console.log("breedsArray", breedsArray);
+    dogsArray.forEach(function(dog){
+        var currentBreedId = dog["breed-id"];
+        console.log("dog breed_id", currentBreedId);
+        breedsArray.forEach(function(breed){
+            if(currentBreedId === breed.id){
+                dog["dogBreed"] = breed.name;
+                dog["basePrice"] = breed["base-price"];
+                dog["description"] = breed.description;
+                dog["finalPrice"] = dog.basePrice + dog["add-on-price"];
+            }
+        });
+    });
+
+    console.log("all the dogs", dogsArray);
+ 
+}
